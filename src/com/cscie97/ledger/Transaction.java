@@ -11,15 +11,19 @@ public class Transaction {
 
     private Integer fee;
 
-    private String payload;
+    private String note;
 
     private Account receiver;
 
     private Account payer;
 
-    public Transaction() {
-        // Create transaction ID using uuid
-
+    public Transaction(String transactionId, Integer amount, Integer fee, String note, Account receiver, Account payer) {
+        this.transactionId = transactionId;
+        this.amount = amount;
+        this.fee = fee;
+        this.note = note;
+        this.receiver = receiver;
+        this.payer = payer;
     }
 
     // Creating a transaction should check to make sure it's valid (uint)

@@ -2,6 +2,8 @@ package com.cscie97.ledger;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Stephen Sheldon
@@ -20,11 +22,11 @@ public class Block {
     private Block previousBlock;
 
     // Max of 10 transactions
-    private LinkedList<Transaction> transactionList;
+    private final List<Transaction> transactionList;
 
     // Each block contains a map of all accounts and their balances which reflect
     // any transactions contained within the block
-    private HashMap<String, Account> accountBalanceMap;
+    private final Map<String, Account> accountBalanceMap;
 
     public Block(Integer blockNumber) {
 
@@ -66,7 +68,7 @@ public class Block {
         return previousBlock;
     }
 
-    public HashMap<String, Account> getAccountBalanceMap() {
+    public Map<String, Account> getAccountBalanceMap() {
         return accountBalanceMap;
     }
 }

@@ -1,6 +1,7 @@
 package com.cscie97.ledger;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Author: Stephen Sheldon
@@ -14,7 +15,7 @@ public class Ledger {
 
     private String seed;
 
-    private HashMap<Integer, Block> blockMap;
+    private final Map<Integer, Block> blockMap;
 
     private Block currentBlock;
 
@@ -60,10 +61,7 @@ public class Ledger {
 
     public Account createAccount(String address) throws LedgerException {
 
-        Account account;
-
         if (currentBlock != null && currentBlock.getAccountBalanceMap().containsKey(address)) {
-            System.out.println("THIS ACCOUNT EXISTS " + address);
             // If it does already contain this account then throw an exception
             throw new LedgerException("The account you are trying to create already exist.", "Please use a unique account address when creating a new account.");
         }
@@ -74,7 +72,20 @@ public class Ledger {
 
     }
 
+    public Transaction createTransaction(String transactionId, Integer amount, Integer fee, String note, String receiver, String payer) throws LedgerException {
 
+        // Verify that both the receiver and payer accounts are in our account balance map
+        if (!currentBlock.getAccountBalanceMap().containsKey(receiver)) {
+            throw new LedgerException("The specified receiver does not have an account in the ledger", "Please enter a valid receiver");
+        } else if (!currentBlock.getAccountBalanceMap().containsKey(payer)) {
+            throw new LedgerException("The specified payer does not have an account in the ledger.", "Please enter a valid payer.");
+        }
+
+        return new Transaction(transactionId, amount, fee, note, currentBlock.getAccountBalanceMap().get(receiver), currentBlock.getAccountBalanceMap().get(payer));
+    }
+
+
+    // Modified
 //    public String processTransaction(Transaction transaction) {
 //
 //        // Create transaction object with amount, fee, payer and receiver accounts
