@@ -48,3 +48,6 @@ get-account-balance jane
 
 # show the details of block #1
 get-block 1
+
+# test in order printing of hash values in merkle tree
+in-order

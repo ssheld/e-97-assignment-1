@@ -134,14 +134,12 @@ public class Block implements Cloneable {
 
     @Override
     public String toString() {
-        return "Block{" +
-                "blockNumber=" + blockNumber +
-                ", previousHash='" + previousHash + '\'' +
-                ", hash='" + hash + '\'' +
-                ", previousBlock=" + previousBlock +
-                ", transactionList=" + transactionList +
-                ", accountBalanceMap=" + accountBalanceMap +
-                ", merkleTree=" + merkleTree +
-                '}';
+        return " blockNumber=" + blockNumber +
+               "\n previousHash=" + previousHash  +
+               "\n hash=" + hash +
+               "\n previousBlock=" + previousBlock +
+               "\n transactionList=" + transactionList +
+               "\n accountBalanceMap=" + accountBalanceMap +
+               "\n merkleTree=" + merkleTree;
     }
 }

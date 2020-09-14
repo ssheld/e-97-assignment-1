@@ -75,14 +75,12 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "transactionId='" + transactionId + '\'' +
+        return  " transactionId=" + transactionId +
                 ", amount=" + amount +
                 ", fee=" + fee +
-                ", note='" + note + '\'' +
-                ", receiver=" + receiver +
-                ", payer=" + payer +
-                ", transactionHash='" + transactionHash + '\'' +
-                '}';
+                ", note=" + note +
+                ", receiver=" + receiver.getAddress() +
+                ", payer=" + payer.getAddress() +
+                ", transactionHash=" + transactionHash + "\n";
     }
 }

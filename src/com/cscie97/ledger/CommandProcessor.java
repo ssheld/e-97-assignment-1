@@ -42,6 +42,9 @@ public class CommandProcessor {
                     break;
                 case "validate":
                     break;
+                case "in-order":
+                    ledger.getBlock(1).getMerkleTree().inOrder();
+                    break;
             }
         } catch (LedgerException e) {
             System.out.println(e.getReason() + " " + e.getAction());
