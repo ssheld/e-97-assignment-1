@@ -72,4 +72,17 @@ public class Transaction {
     public String getTransactionHash() {
         return transactionHash;
     }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "transactionId='" + transactionId + '\'' +
+                ", amount=" + amount +
+                ", fee=" + fee +
+                ", note='" + note + '\'' +
+                ", receiver=" + receiver +
+                ", payer=" + payer +
+                ", transactionHash='" + transactionHash + '\'' +
+                '}';
+    }
 }

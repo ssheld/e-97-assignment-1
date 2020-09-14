@@ -86,4 +86,15 @@ public class MerkleTree {
         System.out.println("Hash Value is " + x.getHash());
         inOrder(x.getRight());
     }
+
+    public Node getRoot() {
+        return root;
+    }
+
+    @Override
+    public String toString() {
+        return "MerkleTree{" +
+                "root=" + root +
+                '}';
+    }
 }

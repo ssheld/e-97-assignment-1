@@ -33,8 +33,10 @@ public class CommandProcessor {
                     System.out.println(ledger.getAccountBalance(command[1]));
                     break;
                 case "get-account-balances":
+//                    System.out.println(ledger.get)
                     break;
                 case "get-block":
+                    System.out.println(ledger.getBlock(Integer.valueOf(command[1])).toString());
                     break;
                 case "get-transaction":
                     break;

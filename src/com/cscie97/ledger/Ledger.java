@@ -1,5 +1,8 @@
 package com.cscie97.ledger;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -189,7 +192,7 @@ public class Ledger {
 
     // Return block for the given block number. Include the list of transactions,
     // and also a map of the account balances stored with the block
-    public Block getBlock(Integer blockNumber) throws Exception {
+    public Block getBlock(Integer blockNumber) throws LedgerException {
 
         // Verify block number given is greater than zero
         if (blockNumber < 0) {
@@ -218,7 +221,7 @@ public class Ledger {
 
         List<Node> hashList = new ArrayList<>();
 
-
+        String blockHashString;
 
         // Create a list of all hashes in our block
         for (int i = 0; i < currentBlock.getTransactionList().size(); i++) {
@@ -227,6 +230,28 @@ public class Ledger {
 
         // Set the merkle root node for this block by creating the tree
         currentBlock.setMerkleTree(merkleTree.createTree(hashList));
+
+        MessageDigest digest = null;
+
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("SHA-256 algorithm not found.");
+        }
+
+        // Generate hash for block
+        // Case - Genesis block thus no previous hash
+        if (currentBlock.getPreviousHash() == null) {
+            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getAccountBalanceMap().toString() + seed;
+        }
+        // Case - We have a previous hash
+        else {
+            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getPreviousHash() + currentBlock.getAccountBalanceMap().toString() + seed;
+        }
+
+        byte[] hash = digest.digest(blockHashString.getBytes(StandardCharsets.UTF_8));
+
+        currentBlock.setHash(new String(hash, StandardCharsets.UTF_8));
 
         // Clone current block to new block
         Block block = (Block)currentBlock.clone();

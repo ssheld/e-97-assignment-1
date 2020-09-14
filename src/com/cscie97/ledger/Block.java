@@ -109,6 +109,10 @@ public class Block implements Cloneable {
         return accountBalanceMap;
     }
 
+    public MerkleTree getMerkleTree() {
+        return merkleTree;
+    }
+
     // Override clone method from interface
     @Override
     protected Object clone() {
@@ -126,5 +130,18 @@ public class Block implements Cloneable {
         cloned.setAccountBalanceMap(this.getAccountBalanceMap());
 
         return cloned;
+    }
+
+    @Override
+    public String toString() {
+        return "Block{" +
+                "blockNumber=" + blockNumber +
+                ", previousHash='" + previousHash + '\'' +
+                ", hash='" + hash + '\'' +
+                ", previousBlock=" + previousBlock +
+                ", transactionList=" + transactionList +
+                ", accountBalanceMap=" + accountBalanceMap +
+                ", merkleTree=" + merkleTree +
+                '}';
     }
 }
