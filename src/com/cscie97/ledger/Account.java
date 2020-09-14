@@ -28,4 +28,9 @@ public class Account {
     public Integer getBalance() {
         return balance;
     }
+
+    @Override
+    public String toString() {
+        return address + balance.toString();
+    }
 }

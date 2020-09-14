@@ -1,14 +1,11 @@
 package com.cscie97.ledger;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Stephen Sheldon
  **/
-public class Block {
+public class Block implements Cloneable {
 
     private Integer blockNumber;
 
@@ -22,26 +19,46 @@ public class Block {
     private Block previousBlock;
 
     // Max of 10 transactions
-    private final List<Transaction> transactionList;
+    private List<Transaction> transactionList;
 
     // Each block contains a map of all accounts and their balances which reflect
     // any transactions contained within the block
-    private final Map<String, Account> accountBalanceMap;
+    private  Map<String, Account> accountBalanceMap;
+
+    // Merkle tree to store transaction hashes of block
+    private MerkleTree merkleTree;
 
     public Block(Integer blockNumber) {
 
         this.blockNumber = blockNumber;
 
         // Create a new transaction list when we create a new block
-        transactionList = new LinkedList<>();
+        transactionList = new ArrayList<>();
 
         // Create new account balance map when we create a new block
-        accountBalanceMap = new HashMap<>();
+        accountBalanceMap = new TreeMap<>();
+    }
+
+    // This constructor is used when creating a new block and copying over the previous
+    // blocks accountBalanceMap. By doing it through the constructor versus a setter method
+    // we have made it immutable once the block is created.
+    public Block(Integer blockNumber, Map<String, Account> accountBalanceMap) {
+
+        this.blockNumber = blockNumber;
+
+        // Create a new transaction list when we create a new block
+        transactionList = new ArrayList<>();
+
+        this.accountBalanceMap = accountBalanceMap;
     }
 
     public void addAccount(Account account) {
         // Check if account exist
         accountBalanceMap.put(account.getAddress(), account);
+    }
+
+    private void setBlockNumber(Integer blockNumber) {
+        this.blockNumber = blockNumber;
     }
 
     public void setPreviousHash(String previousHash) {
@@ -56,6 +73,22 @@ public class Block {
         this.previousBlock = previousBlock;
     }
 
+    private void setTransactionList(List<Transaction> transactionList) {
+        this.transactionList = transactionList;
+    }
+
+    private void setAccountBalanceMap(Map<String, Account> accountBalanceMap) {
+        this.accountBalanceMap = accountBalanceMap;
+    }
+
+    public void setMerkleTree(MerkleTree merkleRoot) {
+        this.merkleTree = merkleRoot;
+    }
+
+    public Integer getBlockNumber() {
+        return blockNumber;
+    }
+
     public String getPreviousHash() {
         return previousHash;
     }
@@ -68,7 +101,30 @@ public class Block {
         return previousBlock;
     }
 
+    public List<Transaction> getTransactionList() {
+        return transactionList;
+    }
+
     public Map<String, Account> getAccountBalanceMap() {
         return accountBalanceMap;
+    }
+
+    // Override clone method from interface
+    @Override
+    protected Object clone() {
+        Block cloned = null;
+        try {
+            cloned = (Block) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("Clone not supported exception.");
+        }
+
+        cloned.setBlockNumber(this.getBlockNumber());
+        cloned.setPreviousHash(this.getPreviousHash());
+        cloned.setHash(this.getHash());
+        cloned.setTransactionList(this.getTransactionList());
+        cloned.setAccountBalanceMap(this.getAccountBalanceMap());
+
+        return cloned;
     }
 }

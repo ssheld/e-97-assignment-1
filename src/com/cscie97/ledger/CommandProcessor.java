@@ -26,9 +26,11 @@ public class CommandProcessor {
                     ledger.createAccount(command[1]);
                     break;
                 case "process-transaction":
+                    Transaction transaction = ledger.createTransaction(command[1], Integer.valueOf(command[3]), Integer.valueOf(command[5]), command[7], command[9], command[11]);
+                    ledger.processTransaction(transaction);
                     break;
                 case "get-account-balance":
-                    ledger.getAccountBalance(command[1]);
+                    System.out.println(ledger.getAccountBalance(command[1]));
                     break;
                 case "get-account-balances":
                     break;

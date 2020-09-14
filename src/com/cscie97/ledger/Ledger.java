@@ -1,7 +1,9 @@
 package com.cscie97.ledger;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Author: Stephen Sheldon
@@ -18,6 +20,8 @@ public class Ledger {
     private final Map<Integer, Block> blockMap;
 
     private Block currentBlock;
+
+    private MerkleTree merkleTree;
 
     public Ledger(String name, String description, String seed) throws LedgerException {
 
@@ -54,7 +58,10 @@ public class Ledger {
         genesisBlock.setPreviousHash(null);
 
         // Create our block map
-        blockMap = new HashMap<>();
+        blockMap = new TreeMap<>();
+
+        // Create our merkle tree
+        merkleTree = new MerkleTree();
 
         System.out.println("successfully created new ledger");
     }
@@ -72,11 +79,11 @@ public class Ledger {
 
     }
 
-    public Transaction createTransaction(String transactionId, Integer amount, Integer fee, String note, String receiver, String payer) throws LedgerException {
+    public Transaction createTransaction(String transactionId, Integer amount, Integer fee, String note, String payer, String receiver) throws LedgerException {
 
         // Verify that both the receiver and payer accounts are in our account balance map
         if (!currentBlock.getAccountBalanceMap().containsKey(receiver)) {
-            throw new LedgerException("The specified receiver does not have an account in the ledger", "Please enter a valid receiver");
+            throw new LedgerException("The specified receiver does not have an account in the ledger.", "Please enter a valid receiver.");
         } else if (!currentBlock.getAccountBalanceMap().containsKey(payer)) {
             throw new LedgerException("The specified payer does not have an account in the ledger.", "Please enter a valid payer.");
         }
@@ -86,30 +93,77 @@ public class Ledger {
 
 
     // Modified
-//    public String processTransaction(Transaction transaction) {
-//
-//        // Create transaction object with amount, fee, payer and receiver accounts
-//
-//        // Make sure transaction doesn't haven negative value and is in uint range
-//
-//        // Transactions should only be accepted if the paying and receiving addresses
-//        // are linked to valid accounts
-//
-//        // Transactions should only be accepted if the paying account has a sufficient
-//        // balance to cover the amount and the associated transaction fee
-//
-//        // IF transaction is accepted then assign it a unique transaction ID (use uuid)
-//
-//        // Then add transaction to block
-//
-//        // Deduct fee (AT LEAST 10 units) from the payers account and transfer to the
-//        // master account
-//
-//        // Debt and credit the accounts
-//
-//
-//
-//    }
+    public String processTransaction(Transaction transaction) throws LedgerException {
+
+        int payerBalance, receiverBalance, masterBalance;
+        Account payerAccount, receiverAccount, masterAccount;
+
+        // Check to make sure transaction amount and fee are unsigned integers
+        if (transaction.getAmount() <= 0 ||
+            transaction.getFee() < 0) {
+            throw new LedgerException("The transaction amount cannot be zero or negative and the fee cannot be negative.", "Please use positive transaction amounts and non-negative fee amounts.");
+        }
+
+        payerBalance = currentBlock.getAccountBalanceMap().get(transaction.getPayer().getAddress()).getBalance();
+        receiverBalance = currentBlock.getAccountBalanceMap().get(transaction.getReceiver().getAddress()).getBalance();
+        masterBalance = currentBlock.getAccountBalanceMap().get("master").getBalance();
+
+        // Transactions should only be accepted if the paying account has a sufficient
+        // balance to cover the amount and the associated transaction fee
+        if (payerBalance < (transaction.getFee() + transaction.getAmount())) {
+            throw new LedgerException("The payer has insufficient funds for the transaction.", "Please change the transaction amount.");
+        }
+
+        payerAccount = currentBlock.getAccountBalanceMap().get(transaction.getPayer().getAddress());
+        receiverAccount = currentBlock.getAccountBalanceMap().get(transaction.getReceiver().getAddress());
+        masterAccount = currentBlock.getAccountBalanceMap().get("master");
+
+        // If we currently have 9 transactions in our list then we need to
+        // add this transaction to the list and commit this block
+        if (currentBlock.getTransactionList().size() == 9) {
+            currentBlock.getTransactionList().add(transaction);
+            currentBlock = incrementCurrentBlock(currentBlock);
+        }
+        // Case - we have less than 9 transactions so just add it to the current block
+        else {
+            currentBlock.getTransactionList().add(transaction);
+        }
+
+        // SPECIAL CASE WHERE MASTER ACCOUNT IS PAYER
+        if (transaction.getPayer().getAddress().equals("master")) {
+            masterBalance -= transaction.getAmount();
+
+            // Add transaction amount to receiver account
+            receiverBalance += transaction.getAmount();
+
+
+
+        } else {
+
+            // Deduct fee (AT LEAST 10 units) from the payers account and transfer to the
+            // master account
+            payerBalance -= transaction.getFee();
+
+            // Deduct transaction amount from payer account
+            payerBalance -= transaction.getAmount();
+
+            masterBalance += transaction.getFee();
+
+            // Add transaction amount to receiver account
+            receiverBalance += transaction.getAmount();
+
+            // Debit and credit accounts
+            payerAccount.setBalance(payerBalance);
+
+        }
+
+        masterAccount.setBalance(masterBalance);
+        receiverAccount.setBalance(receiverBalance);
+
+
+
+        return transaction.getTransactionId();
+    }
 
 
     // Return balance for given account
@@ -119,20 +173,19 @@ public class Ledger {
         if (blockMap == null ||
                 blockMap.isEmpty() ||
                 !blockMap.get(blockMap.size()).getAccountBalanceMap().containsKey(address)) {
-            throw new LedgerException("The specified account has not been committed to a block.", "Please either create the account if it does not exist or wait until at" +
+            throw new LedgerException("The specified account has not been committed to a block.", "Please either create the account if it does not exist or wait until at " +
                     "least 10 transactions to occur before trying again.");
         }
 
         // Return balance from account
         return blockMap.get(blockMap.size()).getAccountBalanceMap().get(address).getBalance();
-
     }
 
-    /*
+
     // Return a map of account names and balances if no account is specified
-    public Map<String, String> getAccountBalances() {
+    /*public Map<String, String> getAccountBalances() {
 
-    }
+    }*/
 
     // Return block for the given block number. Include the list of transactions,
     // and also a map of the account balances stored with the block
@@ -152,12 +205,39 @@ public class Ledger {
     }
 
     // Return the transaction for the given transaction ID
-    public Transaction getTransaction(String transactionId) {
+    /*public Transaction getTransaction(String transactionId) {
 
-    }
-    */
+    }*/
+
 
     public void validate() {
+
+    }
+
+    private Block incrementCurrentBlock(Block currentBlock) {
+
+        List<Node> hashList = new ArrayList<>();
+
+
+
+        // Create a list of all hashes in our block
+        for (int i = 0; i < currentBlock.getTransactionList().size(); i++) {
+            hashList.add(i, new Node(currentBlock.getTransactionList().get(i).getTransactionHash()));
+        }
+
+        // Set the merkle root node for this block by creating the tree
+        currentBlock.setMerkleTree(merkleTree.createTree(hashList));
+
+        // Clone current block to new block
+        Block block = (Block)currentBlock.clone();
+
+        // Add it to our blockmap
+        blockMap.put(block.getBlockNumber(), block);
+
+
+
+        // Create new block and assign it to currentBlock and accountBalanceMap
+        return new Block(currentBlock.getBlockNumber()+1, currentBlock.getAccountBalanceMap());
 
     }
 
