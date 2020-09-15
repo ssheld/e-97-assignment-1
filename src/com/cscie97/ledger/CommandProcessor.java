@@ -46,6 +46,7 @@ public class CommandProcessor {
                     System.out.println(ledger.getTransaction(command[1]).toString());
                     break;
                 case "validate":
+                    ledger.validate();
                     break;
                 case "in-order":
                     ledger.getBlock(1).getMerkleTree().inOrder();
@@ -57,7 +58,6 @@ public class CommandProcessor {
     }
 
     public static void processCommandFile(String file) {
-
 
         Scanner sc;
 

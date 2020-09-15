@@ -283,8 +283,44 @@ public class Ledger {
         return transactionList.stream().filter(t -> t.getTransactionId().equals(transactionId)).findFirst().get();
     }
 
+    /**
+     * Validate the current state of the blockchain. For each block, check
+     * the hash of the previous hash, make sure that the account balances total to the max value.
+     * Verify that each completed block has exactly 10 transactions.
+     * @throws LedgerException Throw an exception for hash mismatches, total account balance greater than
+     *                         Integer.MAX_VALUE or blocks with transaction list sizes that aren't equal to 10.
+     */
+    public void validate() throws LedgerException {
 
-    public void validate() {
+        // Compare the stored previous hash block with the actual hash of the previous block.
+        // Start at a value of 2 because the genesis block doesn't have a previous hash to compare to.
+        for (int i = 2; i < blockMap.size(); i++) {
+
+            // Compare hashes
+            if (!blockMap.get(i).getPreviousHash().equals(blockMap.get(i - 1).getHash())) {
+                throw new LedgerException("validate", "Hash mismatch.");
+            }
+        }
+
+        Integer accountsTotal = 0;
+
+        // Sum all account balances
+        for (Map.Entry<String, Account> entry : getAccountBalances().entrySet()) {
+            accountsTotal += entry.getValue().getBalance();
+        }
+
+        // Verify that it's equal to Integer.MAX_VALUE
+        if (accountsTotal != Integer.MAX_VALUE) {
+            throw new LedgerException("validate", "The sum of all account balances does not equal Integer.MAX_VALUE.");
+        }
+
+        for (Map.Entry<Integer, Block> entry : blockMap.entrySet()) {
+            if (entry.getValue().getTransactionList().size() != 10) {
+                throw new LedgerException("validate", "There exists a block that does not have exactly 10 transactions.");
+            }
+        }
+
+        System.out.println("Our blockchain is valid.");
 
     }
 
