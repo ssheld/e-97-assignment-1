@@ -7,27 +7,52 @@ import java.util.*;
  **/
 public class Block implements Cloneable {
 
+    /**
+     * A sequentially incrementing block number assigned to the block.
+     * The first block or genesis block is assigned a block number of 1.
+     */
     private Integer blockNumber;
 
-    // Each block contains a header that includes the hash of
-    // the previous block using the sha-256 algorithm to compute the hash based on
-    // a merkle tree of the contained transactions
+    /**
+     * The hash of the previous block in the blockchain. For the genesis
+     * block, this is empty. SHA-256 algorithm and merkle tree are used to compute
+     * this hash value.
+     */
     private String previousHash;
 
+    /**
+     * The hash of the current block is computed based on all the properties and
+     * associations of the current block except for this attribute.
+     */
     private String hash;
 
+    /**
+     * Reference to the preceding Block in the blockchain.
+     */
     private Block previousBlock;
 
-    // Max of 10 transactions
+    /**
+     * An ordered list of transactions that are included in the current block.
+     * There should be exactly 10 transactions per block.
+     */
     private List<Transaction> transactionList;
 
-    // Each block contains a map of all accounts and their balances which reflect
-    // any transactions contained within the block
-    private  Map<String, Account> accountBalanceMap;
+    /**
+     * The full set of accounts managed by the Ledger. The account balances
+     * should reflect the account state after all transactions of the current block
+     * have been applied. Each block has it's own immutable copy of this property.
+     */
+    private Map<String, Account> accountBalanceMap;
 
-    // Merkle tree to store transaction hashes of block
+    /**
+     * The Merkle tree that contains the transaction hashes for this block.
+     */
     private MerkleTree merkleTree;
 
+    /**
+     * Constructor for Genesis block.
+     * @param blockNumber The unique block number for the block.
+     */
     public Block(Integer blockNumber) {
 
         this.blockNumber = blockNumber;
@@ -37,12 +62,21 @@ public class Block implements Cloneable {
 
         // Create new account balance map when we create a new block
         accountBalanceMap = new TreeMap<>();
+
+        this.previousBlock = null;
+        this.previousHash = null;
     }
 
-    // This constructor is used when creating a new block and copying over the previous
-    // blocks accountBalanceMap. By doing it through the constructor versus a setter method
-    // we have made it immutable once the block is created.
-    public Block(Integer blockNumber, Map<String, Account> accountBalanceMap) {
+    /**
+     * This constructor is used when creating a new block and copying over the previous
+     * blocks accountBalanceMap and a reference to the previous block.
+     * By doing it through the constructor versus a setter method
+     * we have made it immutable once the block is created.
+     * @param blockNumber        The unique block number for the block.
+     * @param accountBalanceMap  The account balance map from the previous block.
+     * @param previousBlock      Reference to the previous block in the blockchain.
+     */
+    public Block(Integer blockNumber, Map<String, Account> accountBalanceMap, Block previousBlock) {
 
         this.blockNumber = blockNumber;
 
@@ -50,18 +84,25 @@ public class Block implements Cloneable {
         transactionList = new ArrayList<>();
 
         this.accountBalanceMap = accountBalanceMap;
+
+        this.previousBlock = previousBlock;
     }
 
+    /**
+     * Method to add an account to our accountBalanceMap.
+     * @param account The account object we wish to add to our accountBalanceMap.
+     */
     public void addAccount(Account account) {
-        // Check if account exist
         accountBalanceMap.put(account.getAddress(), account);
     }
 
+    // Private so it's immutable to third parties.
     private void setBlockNumber(Integer blockNumber) {
         this.blockNumber = blockNumber;
     }
 
-    public void setPreviousHash(String previousHash) {
+    // Private so that previous hash is immutable to third parties.
+    private void setPreviousHash(String previousHash) {
         this.previousHash = previousHash;
     }
 
@@ -69,14 +110,11 @@ public class Block implements Cloneable {
         this.hash = hash;
     }
 
-    public void setPreviousBlock(Block previousBlock) {
-        this.previousBlock = previousBlock;
-    }
-
     private void setTransactionList(List<Transaction> transactionList) {
         this.transactionList = transactionList;
     }
 
+    // Private so it's immutable to third parties.
     private void setAccountBalanceMap(Map<String, Account> accountBalanceMap) {
         this.accountBalanceMap = accountBalanceMap;
     }
@@ -113,7 +151,12 @@ public class Block implements Cloneable {
         return merkleTree;
     }
 
-    // Override clone method from interface
+    /**
+     * Clone method is used for cloning a block. Utilized when we reach 10 transactions
+     * and want to do a deep copy of our current block to a block that will be stored
+     * in our blockchain.
+     * @return Cloned copy of block.
+     */
     @Override
     protected Object clone() {
         Block cloned = null;

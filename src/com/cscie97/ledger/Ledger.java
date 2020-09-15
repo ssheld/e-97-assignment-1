@@ -11,7 +11,6 @@ import java.util.TreeMap;
 /**
  * Author: Stephen Sheldon
  **/
-
 public class Ledger {
 
     /**
@@ -78,14 +77,6 @@ public class Ledger {
 
         // Add master account to block
         genesisBlock.addAccount(account);
-
-        // Genesis block is a special case being the first block so
-        // set the previousBlock to null
-        genesisBlock.setPreviousBlock(null);
-
-        // Genesis block is a special case being the first block so
-        // set the previousHash to null
-        genesisBlock.setPreviousHash(null);
 
         // Create our block map
         blockMap = new TreeMap<>();
@@ -349,8 +340,8 @@ public class Ledger {
         // Add it to our block map
         blockMap.put(block.getBlockNumber(), block);
 
-        // Create new block and assign it to currentBlock and accountBalanceMap
-        return new Block(currentBlock.getBlockNumber()+1, currentBlock.getAccountBalanceMap());
+        // Create new block
+        return new Block(currentBlock.getBlockNumber()+1, currentBlock.getAccountBalanceMap(), currentBlock);
     }
 
     /**
