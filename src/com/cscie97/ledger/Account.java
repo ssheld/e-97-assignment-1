@@ -3,7 +3,7 @@ package com.cscie97.ledger;
 /**
  * Author: Stephen Sheldon
  **/
-public class Account {
+public class Account implements Cloneable {
 
     /**
      * Unique identifier for the account, assigned upon creation
@@ -30,6 +30,10 @@ public class Account {
         this.balance = 0;
     }
 
+    private void setAddress(String address) {
+        this.address = address;
+    }
+
     public void setBalance(Integer balance) {
         this.balance = balance;
     }
@@ -40,6 +44,27 @@ public class Account {
 
     public Integer getBalance() {
         return balance;
+    }
+
+    /**
+     * Clone method is used for cloning an account. Utilized when we reach 10 transactions
+     * and want to do a deep copy of our current accounts so we can copy them to our new block
+     * without altering the account balances in the blockchain.
+     * @return Cloned copy of account
+     */
+    @Override
+    protected Object clone() {
+        Account cloned = null;
+        try {
+            cloned = (Account) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("Clone not supported exception.");
+        }
+
+        cloned.setAddress(this.getAddress());
+        cloned.setBalance(this.getBalance());
+
+        return cloned;
     }
 
     @Override
