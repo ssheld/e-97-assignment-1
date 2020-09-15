@@ -76,7 +76,7 @@ public class Block implements Cloneable {
      * @param accountBalanceMap  The account balance map from the previous block.
      * @param previousBlock      Reference to the previous block in the blockchain.
      */
-    public Block(Integer blockNumber, Map<String, Account> accountBalanceMap, Block previousBlock) {
+    public Block(Integer blockNumber, Map<String, Account> accountBalanceMap, Block previousBlock, String previousHash) {
 
         this.blockNumber = blockNumber;
 
@@ -86,6 +86,8 @@ public class Block implements Cloneable {
         this.accountBalanceMap = accountBalanceMap;
 
         this.previousBlock = previousBlock;
+
+        this.previousHash = previousHash;
     }
 
     /**
