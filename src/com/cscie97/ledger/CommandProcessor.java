@@ -39,6 +39,7 @@ public class CommandProcessor {
                     System.out.println(ledger.getBlock(Integer.valueOf(command[1])).toString());
                     break;
                 case "get-transaction":
+                    System.out.println(ledger.getTransaction(command[1]).toString());
                     break;
                 case "validate":
                     break;
@@ -75,16 +76,10 @@ public class CommandProcessor {
                     words[i] = words[i].replaceAll("\"", "");
                 }
 
-                // TEST CODE
-//                for (int i = 0; i < words.length; i++) {
-//                    System.out.println(words[i]);
-//                }
-
                 // Check if this is a comment in the script file
                 if (!words[0].equals("#")) {
                     processCommand(words);
                 }
-
             }
 
         } catch (Exception e) {

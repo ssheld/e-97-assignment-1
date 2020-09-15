@@ -48,13 +48,14 @@ public class MerkleTree {
             // Add the last node to list before recursive call
             tempList.add(hashList.get(hashList.size()-1));
             createTree(tempList);
-        }
+        } else {
 
-        // Case - Base case when we reach 2 nodes in list
-        tempNode = new Node(createHash(hashList.get(0), hashList.get(1)));
-        tempNode.setLeft(hashList.get(0));
-        tempNode.setRight(hashList.get(1));
-        root = tempNode;
+            // Case - Base case when we reach 2 nodes in list
+            tempNode = new Node(createHash(hashList.get(0), hashList.get(1)));
+            tempNode.setLeft(hashList.get(0));
+            tempNode.setRight(hashList.get(1));
+            root = tempNode;
+        }
         return this;
     }
 

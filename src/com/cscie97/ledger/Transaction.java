@@ -73,6 +73,10 @@ public class Transaction {
         return transactionHash;
     }
 
+    public String getNote() {
+        return note;
+    }
+
     @Override
     public String toString() {
         return  " transactionId=" + transactionId +
