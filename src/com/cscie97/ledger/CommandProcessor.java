@@ -1,7 +1,9 @@
 package com.cscie97.ledger;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 /**
  * Author: Stephen Sheldon
@@ -21,7 +23,7 @@ public class CommandProcessor {
                     break;
                 case "create-account":
                     if (ledger == null) {
-                        throw new LedgerException("You're trying to create an account without having a ledger,", "Please create a ledger.");
+                        throw new LedgerException("create-account", "No ledger has been created.");
                     }
                     ledger.createAccount(command[1]);
                     break;
@@ -33,7 +35,9 @@ public class CommandProcessor {
                     System.out.println(ledger.getAccountBalance(command[1]));
                     break;
                 case "get-account-balances":
-//                    System.out.println(ledger.get)
+                    for (Map.Entry<String, Account> entry : ledger.getAccountBalances().entrySet()) {
+                        System.out.println(entry.getValue().toString());
+                    }
                     break;
                 case "get-block":
                     System.out.println(ledger.getBlock(Integer.valueOf(command[1])).toString());
@@ -56,8 +60,6 @@ public class CommandProcessor {
 
 
         Scanner sc;
-
-        String input;
 
         String[] words;
 

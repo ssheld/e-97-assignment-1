@@ -96,7 +96,7 @@ public class Ledger {
         // Check to see if the given account ID is already present in our accountBalanceMap
         if (currentBlock != null && currentBlock.getAccountBalanceMap().containsKey(address)) {
             // If it does already contain this account then throw an exception
-            throw new LedgerException("The account you are trying to create already exist.", "Please use a unique account address when creating a new account.");
+            throw new LedgerException("create-account.", "The account you are trying to create already exist.");
         }
 
         currentBlock.getAccountBalanceMap().put(address, new Account(address));
@@ -122,19 +122,19 @@ public class Ledger {
 
         // Verify that both the receiver and payer accounts are in our account balance map
         if (!currentBlock.getAccountBalanceMap().containsKey(receiver)) {
-            throw new LedgerException("The specified receiver does not have an account in the ledger.", "Please enter a valid receiver.");
+            throw new LedgerException("create-transaction", "The specified receiver does not have an account in the ledger.");
         } else if (!currentBlock.getAccountBalanceMap().containsKey(payer)) {
-            throw new LedgerException("The specified payer does not have an account in the ledger.", "Please enter a valid payer.");
+            throw new LedgerException("create-transaction", "The specified payer does not have an account in the ledger.");
         }
 
         // Check to make sure transaction amount and fee are unsigned integers
         if (amount <= 0 || amount > Integer.MAX_VALUE || fee < 10) {
-            throw new LedgerException("The transaction amount cannot be zero or negative and the fee cannot be less than 10.", "Please use positive transaction amounts and a fee amount of 10 or greater.");
+            throw new LedgerException("create-transaction", "The transaction amount cannot be zero or negative and the fee cannot be less than 10.");
         }
 
         // Make sure that the length of our note is under 1024 characters, otherwise throw an exception.
         if (note.length() > 1024) {
-            throw new LedgerException("The transaction note is over 1024 characters in length.", "Please shorten the length of the transaction note.");
+            throw new LedgerException("create-transaction", "The transaction note is over 1024 characters in length.");
         }
 
         return new Transaction(transactionId, amount, fee, note, currentBlock.getAccountBalanceMap().get(receiver), currentBlock.getAccountBalanceMap().get(payer));
@@ -158,7 +158,7 @@ public class Ledger {
         // Transactions should only be accepted if the paying account has a sufficient
         // balance to cover the amount and the associated transaction fee.
         if (payerBalance < (transaction.getFee() + transaction.getAmount())) {
-            throw new LedgerException("The payer has insufficient funds for the transaction.", "Please change the transaction amount.");
+            throw new LedgerException("process-transaction", "The payer has insufficient funds for the transaction.");
         }
 
         payerAccount = currentBlock.getAccountBalanceMap().get(transaction.getPayer().getAddress());
@@ -220,8 +220,7 @@ public class Ledger {
         if (blockMap == null ||
                 blockMap.isEmpty() ||
                 !blockMap.get(blockMap.size()).getAccountBalanceMap().containsKey(address)) {
-            throw new LedgerException("The specified account has not been committed to a block.", "Please either create the account if it does not exist or wait until at " +
-                    "least 10 transactions to occur before trying again.");
+            throw new LedgerException("get-account-balance", "The specified account has not been committed to a block.");
         }
 
         // Return balance from account
@@ -237,11 +236,11 @@ public class Ledger {
 
         // If block map is empty throw an exception
         if (blockMap.isEmpty()) {
-            throw new LedgerException("The current block map is empty.", "Please try again after a block has been completed.");
+            throw new LedgerException("get-account-balances", "There are no accounts in our blockchain.");
         }
 
         // Return the account balance map of the last block written to block map
-        return blockMap.get(blockMap.size()-1).getAccountBalanceMap();
+        return blockMap.get(blockMap.size()).getAccountBalanceMap();
     }
 
     /**
@@ -255,11 +254,11 @@ public class Ledger {
 
         // Verify block number given is greater than zero
         if (blockNumber < 0) {
-            throw new LedgerException("The block number you entered isn't positive", "Please enter a positive unsigned integer value");
+            throw new LedgerException("get-block", "The block number you entered isn't positive.");
         }
         // Verify that our block map contains the block number specified
         else if (!blockMap.containsKey(blockNumber)) {
-            throw new LedgerException("The ledger doesn't contain a block with the specified block number", "Please enter a valid block number");
+            throw new LedgerException("get-block", "The ledger doesn't contain a block with the specified block number.");
         }
         else {
             return blockMap.get(blockNumber);
@@ -278,7 +277,7 @@ public class Ledger {
 
         // Check our transactionList to see if we have a transaction with the specified ID
         if (transactionList.stream().filter(t -> t.getTransactionId().equals(transactionId)).findFirst().isEmpty()) {
-            throw new LedgerException("No transaction found with the given transaction ID.", "Please enter a valid transaction ID.");
+            throw new LedgerException("get-transaction", "No transaction found with the given transaction ID.");
         }
 
         return transactionList.stream().filter(t -> t.getTransactionId().equals(transactionId)).findFirst().get();

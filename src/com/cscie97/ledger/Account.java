@@ -44,6 +44,6 @@ public class Account {
 
     @Override
     public String toString() {
-        return address + balance.toString();
+        return address + " " + balance.toString();
     }
 }
