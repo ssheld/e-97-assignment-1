@@ -11,9 +11,16 @@ import java.util.List;
  **/
 public class MerkleTree {
 
+    /**
+     * The root node of the Merkle tree
+     */
     private Node root;
 
-    // Recursively create merkle tree and return root node
+    /**
+     * Method to create a merkle tree from a transaction hash list.
+     * @param hashList the hash list containing the transactions within a block.
+     * @return
+     */
     public MerkleTree createTree(List<Node> hashList) {
 
         List<Node> tempList;
@@ -59,6 +66,12 @@ public class MerkleTree {
         return this;
     }
 
+    /**
+     * Method to create a hash by taking the hash of two nodes and hashing it.
+     * @param left    The left node.
+     * @param right   The right node.
+     * @return        The string hash value.
+     */
     private String createHash(Node left, Node right) {
         String hashString = left.getHash() + right.getHash();
 
@@ -75,11 +88,17 @@ public class MerkleTree {
         return new String(hash, StandardCharsets.UTF_8);
     }
 
-    // In-order traversal of tree that prints hash values
+    /**
+     * Public facing method to traverse the tree in order and print node hashes.
+     */
     public void inOrder() {
         inOrder(root);
     }
 
+    /**
+     * Private helper method to traverse the Merkle tree in order.
+     * @param x    The root node.
+     */
     private void inOrder(Node x) {
         if (x == null)
             return;
@@ -88,6 +107,10 @@ public class MerkleTree {
         inOrder(x.getRight());
     }
 
+    /**
+     * Returns the root node of a Merkle tree.
+     * @return    The root node of the Merkle tree.
+     */
     public Node getRoot() {
         return root;
     }
