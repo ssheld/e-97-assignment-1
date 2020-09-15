@@ -327,13 +327,16 @@ public class Ledger {
         }
 
         // Generate hash for block
-        // Case - Genesis block thus no previous hash.
+        // Case - Genesis block thus no previous hash or previous block.
         if (currentBlock.getPreviousHash() == null) {
-            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getAccountBalanceMap().toString() + seed;
+            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getBlockNumber().toString() +
+                    currentBlock.getTransactionList().toString() + currentBlock.getAccountBalanceMap().toString() + seed;
         }
-        // Case - We have a previous hash.
+        // Case - We have a previous hash and previous block so include it in our hash string.
         else {
-            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getPreviousHash() + currentBlock.getAccountBalanceMap().toString() + seed;
+            blockHashString = currentBlock.getMerkleTree().getRoot().getHash() + currentBlock.getBlockNumber().toString() +
+                    currentBlock.getPreviousHash() + currentBlock.getTransactionList().toString() + currentBlock.getAccountBalanceMap().toString() +
+                    currentBlock.getPreviousBlock().toString() + seed;
         }
 
         byte[] hash = digest.digest(blockHashString.getBytes(StandardCharsets.UTF_8));
