@@ -10,8 +10,6 @@ public class CommandProcessor {
 
     private static Ledger ledger = null;
 
-    // NOTE - justify passing String array versus the specified string in documentation
-
     /**
      * Process a single command. The output of the command is formatted and displayed to stdout.
      * @param command Command to process
@@ -62,6 +60,10 @@ public class CommandProcessor {
         }
     }
 
+    /**
+     * Process a set of commands provided within the given commandFile.
+     * @param file The file to be processed.
+     */
     public static void processCommandFile(String file) {
 
         LineNumberReader lineNumberReader;
