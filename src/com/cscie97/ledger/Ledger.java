@@ -1,6 +1,5 @@
 package com.cscie97.ledger;
 
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,16 +14,41 @@ import java.util.TreeMap;
 
 public class Ledger {
 
+    /**
+     * Name of the ledger.
+     */
     private String name;
 
+    /**
+     * Ledger description.
+     */
     private String description;
 
+    /**
+     * The seed that is used as input to the hashing algorithm.
+     */
     private String seed;
 
+    /**
+     * A map of block numbers and the associated block.
+     */
     private final Map<Integer, Block> blockMap;
 
+    /**
+     * The initial block of the blockchain.
+      */
+    private Block genesisBlock;
+
+    /**
+     * The current block of the blockchain that HAS NOT been committed to
+     * our blockMap yet.
+     */
     private Block currentBlock;
 
+    /**
+     * The Merkle tree that will be used for computing the transaction hashes of
+     * our current block once our current block reaches 10 transactions.
+     */
     private MerkleTree merkleTree;
 
     /**
@@ -41,7 +65,7 @@ public class Ledger {
         this.seed = seed;
 
         // Create genesis block with default blocker number of 1
-        Block genesisBlock = new Block(1);
+        genesisBlock = new Block(1);
 
         // Set currentBlock reference to genesis block
         currentBlock = genesisBlock;
@@ -125,7 +149,6 @@ public class Ledger {
         return new Transaction(transactionId, amount, fee, note, currentBlock.getAccountBalanceMap().get(receiver), currentBlock.getAccountBalanceMap().get(payer));
     }
 
-
     /**
      * Process a transaction.  Finish validating the transaction and if valid, add it to our current block.
      * @param transaction      The transaction object for the given transaction.
@@ -193,8 +216,13 @@ public class Ledger {
         return transaction.getTransactionId();
     }
 
-
-    // Return balance for given account
+    /**
+     * Return the account balance for the account with a given address based on the most recently completed block.
+     * @param address The address of the account number we wish to retrieve the balance of.
+     * @return        The balance of the account with the given address.
+     * @throws LedgerException  Throw an exception if our blockmap hasn't been initialized, is empty or doesn't contain
+     *                          the account with the specified address.
+     */
     public Integer getAccountBalance(String address) throws LedgerException {
 
         // Check if blockMap is null or empty or doesn't contain the account
@@ -209,20 +237,28 @@ public class Ledger {
         return blockMap.get(blockMap.size()).getAccountBalanceMap().get(address).getBalance();
     }
 
+    /**
+     * Return the account balance map for the most recently completed block.
+     * @return account balance map for most recently completed block.
+     * @throws LedgerException Throw an exception if the block map is currently empty.
+     */
+    public Map<String, Account> getAccountBalances() throws LedgerException {
 
-    // Return a map of account names and balances if no account is specified
-    /*public Map<String, String> getAccountBalances() {
+        // If block map is empty throw an exception
+        if (blockMap.isEmpty()) {
+            throw new LedgerException("The current block map is empty.", "Please try again after a block has been completed.");
+        }
 
-    }*/
-
-    // Return block for the given block number. Include the list of transactions,
-    // and also a map of the account balances stored with the block
+        // Return the account balance map of the last block written to block map
+        return blockMap.get(blockMap.size()-1).getAccountBalanceMap();
+    }
 
     /**
-     *
-     * @param blockNumber
-     * @return
-     * @throws LedgerException
+     * Returns the block for the given block number.
+     * @param blockNumber   Block number of the block we wish to retrieve.
+     * @return              Block object with corresponding block number.
+     * @throws LedgerException Throw an exception if the block number is a negative value or if our block map
+     *                         doesn't contain a block with that block number.
      */
     public Block getBlock(Integer blockNumber) throws LedgerException {
 
