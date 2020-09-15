@@ -294,7 +294,7 @@ public class Ledger {
 
         // Compare the stored previous hash block with the actual hash of the previous block.
         // Start at a value of 2 because the genesis block doesn't have a previous hash to compare to.
-        for (int i = 2; i < blockMap.size(); i++) {
+        for (int i = 2; i <= blockMap.size(); i++) {
 
             // Compare hashes
             if (!blockMap.get(i).getPreviousHash().equals(blockMap.get(i - 1).getHash())) {
@@ -375,8 +375,14 @@ public class Ledger {
         // Add it to our block map
         blockMap.put(block.getBlockNumber(), block);
 
+        // Do a deep copy of our account balance map
+        Map<String, Account> abMap = new TreeMap<>();
+        for (Map.Entry<String, Account> entry : currentBlock.getAccountBalanceMap().entrySet()) {
+            abMap.put(entry.getKey(), (Account)entry.getValue().clone());
+        }
+
         // Create new block
-        return new Block(currentBlock.getBlockNumber()+1, currentBlock.getAccountBalanceMap(), currentBlock);
+        return new Block(currentBlock.getBlockNumber()+1, abMap, currentBlock, currentBlock.getHash());
     }
 
     /**
