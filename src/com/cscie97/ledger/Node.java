@@ -5,10 +5,20 @@ package com.cscie97.ledger;
  **/
 public class Node {
 
+    /**
+     * Hash value for a node in a Merkle tree.
+     */
     private String hash;
 
+    /**
+     * References to left and right children nodes of a node.
+     */
     private Node left, right;
 
+    /**
+     * Constructor to create a new node with the given hash.
+     * @param hash    Hash value to assign to new node.
+     */
     public Node(String hash) {
         this.hash = hash;
     }
