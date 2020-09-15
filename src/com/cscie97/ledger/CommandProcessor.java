@@ -1,9 +1,7 @@
 package com.cscie97.ledger;
 
-import java.io.File;
+import java.io.*;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.stream.Stream;
 
 /**
  * Author: Stephen Sheldon
@@ -13,7 +11,14 @@ public class CommandProcessor {
     private static Ledger ledger = null;
 
     // NOTE - justify passing String array versus the specified string in documentation
-    public static void processCommand(String[] command) {
+
+    /**
+     * Process a single command. The output of the command is formatted and displayed to stdout.
+     * @param command Command to process
+     * @param lineNumber The lineNumber in the text file of this command
+     * @throws CommandProcessorException Throws on error in Ledger
+     */
+    public static void processCommand(String[] command, int lineNumber) throws CommandProcessorException {
 
 
         try {
@@ -53,25 +58,23 @@ public class CommandProcessor {
                     break;
             }
         } catch (LedgerException e) {
-            System.out.println(e.getReason() + " " + e.getAction());
+            throw new CommandProcessorException(e.getAction(), e.getReason(), lineNumber);
         }
     }
 
     public static void processCommandFile(String file) {
 
-        Scanner sc;
-
+        LineNumberReader lineNumberReader;
         String[] words;
 
-        // Check if file exists
         try {
+            lineNumberReader = new LineNumberReader(new FileReader(file));
 
-            sc = new Scanner(new File(file));
+            String line;
 
-            while (sc.hasNextLine()) {
-
+            while ((line = lineNumberReader.readLine()) != null) {
                 // Regex to split on space unless we hit quotations marks.
-                words = sc.nextLine().split(" (?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+                words = line.split(" (?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
                 // Remove residual quotations marks from strings
                 for (int i = 0; i < words.length; i++) {
@@ -79,17 +82,18 @@ public class CommandProcessor {
                 }
 
                 // Check if this is a comment in the script file
-                if (!words[0].equals("#")) {
-                    processCommand(words);
+                try {
+                    if (!words[0].equals("#")) {
+                        processCommand(words, lineNumberReader.getLineNumber());
+                    }
+                } catch (CommandProcessorException c) {
+                    System.out.println(c.getCommand() + " " + c.getReason() + " Line number: " + c.getLineNumber());
                 }
             }
-
-        } catch (Exception e) {
-            // File not found
-            System.out.println("ERROR");
-            System.out.println(e.toString());
+        } catch (FileNotFoundException f) {
+            System.out.println("File not found exception.");
+        } catch (IOException i) {
+            System.out.println("IO exception");
         }
-
     }
-
 }
