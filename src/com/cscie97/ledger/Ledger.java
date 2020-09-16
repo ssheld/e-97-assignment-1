@@ -165,15 +165,8 @@ public class Ledger {
         receiverAccount = currentBlock.getAccountBalanceMap().get(transaction.getReceiver().getAddress());
         masterAccount = currentBlock.getAccountBalanceMap().get("master");
 
-        // Case - If we currently have 9 transactions in our list then we need to
         // add this transaction to the list and commit this block
-        if (currentBlock.getTransactionList().size() == 9) {
-            currentBlock.getTransactionList().add(transaction);
-        }
-        // Case - we have less than 9 transactions so just add it to the current block
-        else {
-            currentBlock.getTransactionList().add(transaction);
-        }
+        currentBlock.getTransactionList().add(transaction);
 
         // Special case where payer account is same as master account
         if (transaction.getPayer().getAddress().equals("master")) {
@@ -202,6 +195,7 @@ public class Ledger {
         // Write the new balances to master and receiver accounts
         masterAccount.setBalance(masterBalance);
         receiverAccount.setBalance(receiverBalance);
+
         if (currentBlock.getTransactionList().size() == 10) {
             currentBlock = incrementCurrentBlock(currentBlock);
         }
