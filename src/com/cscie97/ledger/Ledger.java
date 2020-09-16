@@ -169,7 +169,6 @@ public class Ledger {
         // add this transaction to the list and commit this block
         if (currentBlock.getTransactionList().size() == 9) {
             currentBlock.getTransactionList().add(transaction);
-            currentBlock = incrementCurrentBlock(currentBlock);
         }
         // Case - we have less than 9 transactions so just add it to the current block
         else {
@@ -203,6 +202,9 @@ public class Ledger {
         // Write the new balances to master and receiver accounts
         masterAccount.setBalance(masterBalance);
         receiverAccount.setBalance(receiverBalance);
+        if (currentBlock.getTransactionList().size() == 10) {
+            currentBlock = incrementCurrentBlock(currentBlock);
+        }
 
         return transaction.getTransactionId();
     }
