@@ -62,7 +62,7 @@ get-account-balance bill
 #process-transaction <transaction-id> amount <amount> fee <fee> note <note> payer <account-address> receiver <account-address>
 process-transaction 11 amount 4290 fee 10 note "fund account" payer john receiver master
 
-# expect balance of 0 for john
+# expect balance of 4300 for john
 get-account-balance john
 
 # error testing - creating account that already exist
