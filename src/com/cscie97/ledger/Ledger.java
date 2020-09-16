@@ -148,7 +148,7 @@ public class Ledger {
      */
     public String processTransaction(Transaction transaction) throws LedgerException {
 
-        int payerBalance, receiverBalance, masterBalance;
+        Integer payerBalance, receiverBalance, masterBalance;
         Account payerAccount, receiverAccount, masterAccount;
 
         payerBalance = currentBlock.getAccountBalanceMap().get(transaction.getPayer().getAddress()).getBalance();
@@ -169,12 +169,43 @@ public class Ledger {
         currentBlock.getTransactionList().add(transaction);
 
         // Special case where payer account is same as master account
-        if (transaction.getPayer().getAddress().equals("master")) {
+        if (transaction.getPayer().getAddress().equals("master") &&
+            transaction.getPayer() != transaction.getReceiver()) {
 
+            // Deduct transaction amount from master account
             masterBalance -= transaction.getAmount();
+
+            // Add transaction amount to receiver account
             receiverBalance += transaction.getAmount();
 
-        } else {
+            // Write new balances to accounts
+            receiverAccount.setBalance(receiverBalance);
+            masterAccount.setBalance(masterBalance);
+
+        }
+        // Case where receiver is master account
+        else if (transaction.getReceiver().getAddress().equals("master") &&
+            transaction.getPayer() != transaction.getReceiver()) {
+
+            // Deduct fee from payer account.
+            payerBalance -= transaction.getFee();
+
+            // Deduct transaction amount from payer account.
+            payerBalance -= transaction.getAmount();
+
+            // Add fee to master account
+            masterBalance += transaction.getFee();
+
+            // Add transaction amount to master account
+            masterBalance += transaction.getAmount();
+
+            // Write new balances to accounts
+            payerAccount.setBalance(payerBalance);
+            masterAccount.setBalance(masterBalance);
+
+        }
+        // Case where neither payer or receiver are master account and accounts are not equal
+        else if (transaction.getReceiver() != transaction.getPayer()) {
 
             // Deduct fee from payer account.
             payerBalance -= transaction.getFee();
@@ -190,11 +221,9 @@ public class Ledger {
 
             // Write the new balances to payer account.
             payerAccount.setBalance(payerBalance);
+            receiverAccount.setBalance(receiverBalance);
+            masterAccount.setBalance(masterBalance);
         }
-
-        // Write the new balances to master and receiver accounts
-        masterAccount.setBalance(masterBalance);
-        receiverAccount.setBalance(receiverBalance);
 
         if (currentBlock.getTransactionList().size() == 10) {
             currentBlock = incrementCurrentBlock(currentBlock);
